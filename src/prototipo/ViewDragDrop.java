@@ -2,23 +2,20 @@ package prototipo;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class View extends JFrame
+public class ViewDragDrop extends JFrame
 {
     private int posClickX;
     private int posClickY;
     
     private List<JPanel> entidades = new ArrayList<>();
     
-    public View()
+    public ViewDragDrop()
     {
         super();
         setLayout(new BorderLayout());
