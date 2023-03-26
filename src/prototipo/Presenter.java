@@ -15,8 +15,8 @@ public class Presenter {
         
     }
     
-    private void moverLixeira(int x, int y)
+    public void selecionarLixeira(int id)
     {
-        
+        System.out.println(id);
     }
 }
