@@ -1,16 +1,17 @@
 package prototipo;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import javax.swing.JButton;
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -21,13 +22,10 @@ public class ViewSwap extends JFrame
     // Visual
     private JMenuBar mnuBar;
     private JMenu mnuAleatorio;
-    private JMenu mnuTodos;
-    private JPanel pnlCanvas;
+    private JMenu mnuIniciar;
+    private JMenu mnuJogo;
+    private Canvas pnlCanvas;
     private JPanel pnlLixeiras;
-    private JPanel pnlPrimeiraLixeira;
-    private JPanel pnlSegundaaLixeira;
-    private JPanel pnlTerceiraLixeira;
-    private JPanel pnlQuartaLixeira;
     
     // Presenter
     private Presenter p;
@@ -36,7 +34,7 @@ public class ViewSwap extends JFrame
     public ViewSwap()
     {
         super();
-        setSize(400, 750);
+        setSize(400, 660);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         iniciarComponentes();
@@ -49,48 +47,64 @@ public class ViewSwap extends JFrame
 
     private void iniciarComponentes()
     {
+        // DEBUG
+        System.out.println("LOGGING:");
+        
         // Menu
         mnuBar = new JMenuBar();
         
-        mnuAleatorio = new JMenu("Novo");
-        mnuTodos = new JMenu("Aleatório");
+        mnuAleatorio = new JMenu("Lixo Aleatorio");
+        mnuAleatorio.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                p.adicionarLixo();
+            }
+        });
         
-        // Eventos
+        mnuIniciar = new JMenu("Iniciar Loop");
+        mnuIniciar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                p.iniciarLoop();
+            }
+        });
+        
+        mnuJogo = new JMenu("Iniciar Partida");
+        mnuJogo.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("oie");
+                p.iniciarPartida();
+            }
+        });
         
         // Bindings
+        mnuBar.add(mnuJogo);
+        mnuBar.add(mnuIniciar);
         mnuBar.add(mnuAleatorio);
-        mnuBar.add(mnuTodos);
         setJMenuBar(mnuBar);
         
-        // Paineis
+        // Container
+        JPanel pnlPrincipal = new JPanel();
+        pnlPrincipal.setLayout(new BorderLayout());
+        pnlPrincipal.setSize(400, 600);
+        
+        // Canvas
         pnlCanvas = new Canvas();
-        pnlLixeiras = new JPanel();
-        pnlLixeiras.setLayout(new GridLayout(1,4));
-
-        pnlCanvas.setSize(400, 600);
-        pnlCanvas.setMinimumSize(new Dimension(400,600));
         pnlCanvas.setBackground(Color.LIGHT_GRAY);
-
-        pnlLixeiras.setSize(400, 100);
+        pnlCanvas.setPreferredSize(new Dimension(400,500));
+        
+        this.add(pnlCanvas, BorderLayout.NORTH);
+        
+        pnlLixeiras = new JPanel();
+        pnlLixeiras.setPreferredSize(new Dimension(400, 100));
+        pnlLixeiras.setLayout(new GridLayout(1,4));
         pnlLixeiras.setBackground(Color.RED);
         
         // Lixeiras
         final List<Color> CORES = List.of(Color.YELLOW, Color.BLUE, Color.RED, Color.GREEN);
  
-        for (Color cor : CORES)
-        {
-            JPanel lixeira = new JPanel();
-            lixeira.setBackground(cor);
-            
-            lixeira.addMouseListener(new MouseAdapter(){
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    p.selecionarLixeira(CORES.lastIndexOf(cor));
-                }
-            });
-            
-            pnlLixeiras.add(lixeira);
-        }
+        desenharLixeiras(CORES);
         
         // Mnemonics
         this.addKeyListener(new KeyAdapter(){
@@ -101,57 +115,78 @@ public class ViewSwap extends JFrame
                 {
                     p.selecionarLixeira(keyCode);
                 }
+                else if (e.getKeyCode() == KeyEvent.VK_SPACE)
+                {
+                    p.adicionarLixo();
+                }
             }
         });
 
-        // Bindings
-        add(pnlCanvas);
-        add(pnlLixeiras);
+        this.add(pnlLixeiras, BorderLayout.SOUTH);
         
         // DEBUG
-        System.out.println("Frame: " + this.getSize());
-        System.out.println("Canvas: " + pnlCanvas.getSize());
-        System.out.println("Lixeiras: " + pnlLixeiras.getSize());
+        System.out.println("DEBUG:   Frame: " + this.getBounds());
+        System.out.println("DEBUG:   Canvas: " + pnlCanvas.getPreferredSize());
+        System.out.println("DEBUG:   Lixeiras: " + pnlLixeiras.getPreferredSize());
     }
     
-    public void moverLixeira()
+    public void selecionarLixeira(int idLixeira)
     {
-        
+        JPanel pnl = (JPanel) pnlLixeiras.getComponent(idLixeira);
+        pnl.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
     }
     
-//    public void desenharLixeiras(List<Color> cores)
-//    {
-//        pnlLixeiras.removeAll();
-// 
-//        for (Color cor : cores)
-//        {
-//            JPanel lixeira = new JPanel();
-//            lixeira.setBackground(cor);
-//            
-//            lixeira.addMouseListener(new MouseAdapter(){
-//                @Override
-//                public void mouseClicked(MouseEvent e) {
-//                    p.selecionarLixeira(cores.lastIndexOf(cor));
-//                }
-//            });
-//            
-//            pnlLixeiras.add(lixeira);
-//        }
-//    }
-    
-    private void setListener(JPanel pnl)
+    public void deselecionarLixeira()
     {
-        
+        for (Component c : pnlLixeiras.getComponents())
+        {
+            JPanel pnl = (JPanel) c;
+            pnl.setBorder(null);
+        }
     }
     
+    public void desenharReciclaveis(List<Desenhavel> reciclaveis)
+    {
+        pnlCanvas.setReciclaveis(reciclaveis);
+        pnlCanvas.repaint();
+    }
+    
+    public void desenharLixeiras(List<Color> cores)
+    {
+        pnlLixeiras.removeAll();
+        
+        // DEBUG
+        System.out.printf("DEBUG:   Lixeiras (rgb): ");
+        
+        for (Color cor : cores)
+        {
+            JPanel lixeira = new JPanel();
+            lixeira.setBackground(cor);
+            
+            lixeira.addMouseListener(new MouseAdapter(){
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    p.selecionarLixeira(cores.lastIndexOf(cor));
+                }
+            });
+            
+            lixeira.setBorder(BorderFactory.createLineBorder(cor));
+            pnlLixeiras.add(lixeira);
+            
+            // DEBUG
+            System.out.printf("[%d, %d, %d] ", cor.getRed(), cor.getGreen(),cor.getBlue());
+        }
+        // DEBUG
+        System.out.println();
+    }
 }
 
 class Canvas extends JPanel
 {
-    private List<Reciclavel> reciclaveis;
+    private List<Desenhavel> reciclaveis;
     private Dimension tamanhoReciclavel = new Dimension(50, 50);
 
-    public void setReciclaveis(List<Reciclavel> entidades)
+    public void setReciclaveis(List<Desenhavel> entidades)
     {
         this.reciclaveis = entidades;
     }
@@ -161,17 +196,23 @@ class Canvas extends JPanel
         this.tamanhoReciclavel = tamanho;
     }
     
-    protected void paintComponent(Graphics g, int x)
+    @Override
+    protected void paintComponent(Graphics g)
     {
+        System.out.println("DEBUG:   Canvas redesenhado");
         super.paintComponent(g);
         
-        for (Reciclavel reciclavel : reciclaveis)
+        if(reciclaveis != null)
         {
-            g.drawRect(reciclavel.x,
-                       reciclavel.y,
-                    tamanhoReciclavel.width, 
-                    tamanhoReciclavel.height
-            );
+            for (Desenhavel reciclavel : reciclaveis)
+            {
+                g.setColor(reciclavel.getCor());
+                g.fillOval(reciclavel.getX(),
+                           reciclavel.getY(),
+                        tamanhoReciclavel.width, 
+                        tamanhoReciclavel.height
+                );
+            }
         }
     }
 }

@@ -5,34 +5,35 @@ import javax.swing.SwingUtilities;
 
 public class Prototipo
 {
-    private static final int ANTIGO = 0;
-    private static final int MVP = 1;
+    private static final int ARRASTAR = 0;
+    private static final int TROCAR = 1;
+    
     public Prototipo()
     {
         String[] options = new String[]
         {
-            "Drag/Drop", "Swap"
+            "Arrastar", "Trocar"
         };
 
         int option = JOptionPane.showOptionDialog(
                 null,
-                "Escolha o tipo",
-                "Aviso",
+                "Versão",
+                "Prototipo",
                 JOptionPane.NO_OPTION, 
                 JOptionPane.WARNING_MESSAGE,
                 null, options, options[1]);
         
-        if (option == ANTIGO)
+        if (option == ARRASTAR)
         {
-            ViewDragDrop v = new ViewDragDrop();
-            v.setVisible(true);
+            ViewDragDrop view = new ViewDragDrop();
+            view.setVisible(true);
         } 
-        else if (option == MVP)
+        else if (option == TROCAR)
         {
-            Jogo      m = new Jogo();
-            ViewSwap  v = new ViewSwap();
-            Presenter p = new Presenter(v, m);
-            v.setPresenter(p);
+            Jogo      model     = new Jogo();
+            ViewSwap  view      = new ViewSwap();
+            Presenter presenter = new Presenter(view, model);
+            view.setPresenter(presenter);
         }
     }
 
